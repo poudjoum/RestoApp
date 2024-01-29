@@ -19,16 +19,20 @@ import java.io.IOException;
 @Component
 
 public class JwtFilter extends OncePerRequestFilter {
-   @Autowired
-    private JwtUtil jwtUtil;
-    @Autowired
-    private CustomerUsersDetailsService service;
+   private final JwtUtil jwtUtil;
+    private final CustomerUsersDetailsService service;
     Claims claims=null;
-    private String userName=null;
+   private String userName=null;
+
+    public JwtFilter(JwtUtil jwtUtil, CustomerUsersDetailsService service) {
+        this.jwtUtil = jwtUtil;
+        this.service = service;
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        if(request.getServletPath().matches("/user/login|/user/forgotPassword|/user/signup")){
+        if(request.getServletPath().matches("/user/login|/user/forgotPassword|/user/signup|/user/update")){
             filterChain.doFilter(request,response);
         }else {
             String authorizationHeader=request.getHeader("Authorization");

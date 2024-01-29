@@ -1,9 +1,8 @@
 package com.jumpytech.restomanagementsystembackend.JWT;
 
 import com.jumpytech.restomanagementsystembackend.dao.UserDao;
-import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,9 +17,13 @@ import java.util.Objects;
 @Slf4j
 
 public class CustomerUsersDetailsService implements UserDetailsService {
+    @Getter
     private  com.jumpytech.restomanagementsystembackend.POJO.User userDetail;
-    @Autowired
-    private UserDao userDao;
+    private final UserDao userDao;
+
+    public CustomerUsersDetailsService(UserDao userDao) {
+        this.userDao = userDao;
+    }
 
 
     @Override
@@ -31,8 +34,5 @@ public class CustomerUsersDetailsService implements UserDetailsService {
             return new User(userDetail.getEmail(),userDetail.getPassword(),new ArrayList<>());
         else
             throw new UsernameNotFoundException("User not Found");
-    }
-    public com.jumpytech.restomanagementsystembackend.POJO.User getUserDetail(){
-        return userDetail;
     }
 }
