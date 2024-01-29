@@ -9,7 +9,6 @@ import org.springframework.data.repository.query.Param;
 
 import javax.transaction.Transactional;
 import java.util.List;
-import java.util.Optional;
 
 public interface UserDao  extends JpaRepository<User,Integer> {
 

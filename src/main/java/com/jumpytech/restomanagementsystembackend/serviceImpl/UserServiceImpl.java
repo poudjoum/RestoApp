@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
     final
     EmailUtils emailUtils;
 
-    @Autowired
+
     public UserServiceImpl(UserDao userDao, AuthenticationManager authenticationManager, CustomerUsersDetailsService cust, JwtUtil jwtUtil, JwtFilter jwtFilter, EmailUtils emailUtils) {
         this.userDao = userDao;
         this.authenticationManager = authenticationManager;
@@ -75,7 +75,7 @@ public class UserServiceImpl implements UserService {
         user.setEmail(requestMap.get("email"));
         user.setPassword(requestMap.get("password"));
         user.setStatus("false");
-        user.setRole("user");
+        user.setRole("admin");
         return user;
     }
 	@Override
@@ -86,10 +86,10 @@ public class UserServiceImpl implements UserService {
 					new UsernamePasswordAuthenticationToken(requestMap.get("email"), requestMap.get("password")));
 			if(auth.isAuthenticated()) {
 				if(cust.getUserDetail().getStatus().equalsIgnoreCase("true")) {
-					return new ResponseEntity<>("{\"token\":\"" + jwtUtil.generateToken(cust.getUserDetail().getEmail(),
+					return new ResponseEntity<String>("{\"token\":\"" + jwtUtil.generateToken(cust.getUserDetail().getEmail(),
                             cust.getUserDetail().getRole()) + "\"}", HttpStatus.OK);
 				}else {
-					return new ResponseEntity<>("{\"message\":\"" + "Wait for Admin approval." + "\"}", HttpStatus.BAD_REQUEST);
+					return new ResponseEntity<String>("{\"message\":\"" + "Wait for Admin approval." + "\"}", HttpStatus.BAD_REQUEST);
 				}
 				
 			}
@@ -97,7 +97,7 @@ public class UserServiceImpl implements UserService {
 		}catch(Exception ex) {
 			log.error("{}",ex);
 		}
-		return new ResponseEntity<>("{\"message\":\"" + "Something wrong." + "\"}", HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>("{\"message\":\"" + "Bad credentials." + "\"}", HttpStatus.BAD_REQUEST);
 	}
     @Override
     public ResponseEntity<List<UserWrapper>> getAllUser() {
