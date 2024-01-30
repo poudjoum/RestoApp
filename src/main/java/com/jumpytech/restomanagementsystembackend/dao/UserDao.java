@@ -25,5 +25,6 @@ public interface UserDao  extends JpaRepository<User,Integer> {
     @Query("update User u set u.status=:status where u.id=:id")
     Integer updateStatus(@Param("status")String status,@Param("id")Integer id);
 
+    User findByEmail(String email);
 
 }

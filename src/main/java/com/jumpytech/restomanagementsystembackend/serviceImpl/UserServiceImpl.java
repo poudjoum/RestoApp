@@ -1,5 +1,6 @@
 package com.jumpytech.restomanagementsystembackend.serviceImpl;
 
+import com.google.common.base.Strings;
 import com.jumpytech.restomanagementsystembackend.JWT.CustomerUsersDetailsService;
 import com.jumpytech.restomanagementsystembackend.JWT.JwtFilter;
 import com.jumpytech.restomanagementsystembackend.JWT.JwtUtil;
@@ -10,10 +11,8 @@ import com.jumpytech.restomanagementsystembackend.service.UserService;
 import com.jumpytech.restomanagementsystembackend.utils.EmailUtils;
 import com.jumpytech.restomanagementsystembackend.utils.RestoUtilis;
 import com.jumpytech.restomanagementsystembackend.wrapper.UserWrapper;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -136,6 +135,49 @@ public class UserServiceImpl implements UserService {
         }
         return RestoUtilis.getResponseEnity(RestoConstants.SOMETHING_WENT_WRONG,HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @Override
+    public ResponseEntity<String> checkToken() {
+
+            return RestoUtilis.getResponseEnity("true",HttpStatus.OK);
+
+    }
+
+    @Override
+    public ResponseEntity<String> changePassword(Map<String, String> requestMap) {
+        try{
+            User userObj=userDao.findByEmail(jwtFilter.getCurrentUser());
+            if(!userObj.equals(null)){
+                if(userObj.getPassword().equals(requestMap.get("oldPassword"))){
+                    userObj.setPassword(requestMap.get("newPassword"));
+                    userDao.save(userObj);
+                    return RestoUtilis.getResponseEnity("Password Updated Successfully! ",HttpStatus.OK);
+                }
+                return RestoUtilis.getResponseEnity("Incorrect old Passwprd",HttpStatus.BAD_REQUEST);
+            }
+            return RestoUtilis.getResponseEnity(RestoConstants.SOMETHING_WENT_WRONG,HttpStatus.INTERNAL_SERVER_ERROR);
+
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+        return RestoUtilis.getResponseEnity(RestoConstants.SOMETHING_WENT_WRONG,HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<String> forgotPassword(Map<String, String> requestMap) {
+        try{
+            User user=userDao.findByEmail(requestMap.get("email"));
+            if(!Objects.isNull(user)&& !Strings.isNullOrEmpty(user.getEmail()))
+                emailUtils.forgotMail(user.getEmail(),"Credentials by Resto Management System",user.getPassword());
+                return RestoUtilis.getResponseEnity("Check your Mail for Credentials",HttpStatus.OK);
+
+
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+        return RestoUtilis.getResponseEnity(RestoConstants.SOMETHING_WENT_WRONG,HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     private void sendMailToAllAdmin(String status, String user ,List<String> allAdmin) {
         allAdmin.remove(jwtFilter.getCurrentUser());
         if(status!=null && status.equalsIgnoreCase("true")){
